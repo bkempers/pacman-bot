@@ -90,21 +90,30 @@ def depthFirstSearch(problem):
     to_search = util.Stack()
     to_search.push(state)
     visited_states = set()      # Avoid duplicate computation by tracking visited states
+    directions = {}
     parent = ({state : None})   # Remember each
     while not to_search.isEmpty():
         if state not in visited_states:
-            for successor in problem.getSuccessors(state):
-                parent.update({successor : state})
-                to_search.push(successor)
-            visited_states.add(state)
             if problem.isGoalState(state):
                 break
+            for successor in problem.getSuccessors(state):
+                parent.update({successor[0] : state})
+                directions[successor[0]] = successor[1]
+                to_search.push(successor[0])
+            visited_states.add(state)
         state = to_search.pop()
 
     retVal = [state]
+    returnDirections = []
     while parent[state]:
         retVal = [parent[state]] + retVal
         state = parent[state]
+
+    for element in retVal:
+        if element is not problem.getStartState():
+            returnDirections.append(directions[element])
+
+    return returnDirections
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
