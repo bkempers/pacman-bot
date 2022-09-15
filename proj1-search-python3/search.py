@@ -69,50 +69,62 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    state = problem.getStartState()
+    current_state = problem.getStartState()
     to_search = util.Stack()
-    to_search.push(state)
-    visited_states = set()      # Avoid duplicate computation by tracking visited states
+    to_search.push(current_state)
+    # Remember each state's predecessor and direction for later
     directions = {}
-    parent = ({state : None})   # Remember each
+    parent = ({current_state : None})   
+    # Search the problem graph depth-first until the goal state is found.
+    visited_states = set()  # Avoid duplicate computation by tracking visited states
     while not to_search.isEmpty():
-        if state not in visited_states:
-            if problem.isGoalState(state):
+        if current_state not in visited_states:
+            if problem.isGoalState(current_state):
                 break
-            for successor in problem.getSuccessors(state):
+            for successor in problem.getSuccessors(current_state):
                 if successor[0] not in visited_states:
-                    parent.update({successor[0] : state})
+                    parent.update({successor[0] : current_state})
                     directions[successor[0]] = successor[1]
                     to_search.push(successor[0])
-            visited_states.add(state)
-        state = to_search.pop()
+            visited_states.add(current_state)
+        current_state = to_search.pop()
 
-    retVal = [state]
-    returnDirections = []
-    while parent[state] is not problem.getStartState():
-        retVal = [parent[state]] + retVal
-        state = parent[state]
+    # Build the list of moves by traversing backwards from the goal state to the start.
+    return_directions = []
+    while parent[current_state] is not None:
+        return_directions.insert(0, directions[current_state])
+        current_state = parent[current_state]
 
-    for element in retVal:
-        if element is not problem.getStartState():
-            returnDirections.append(directions[element])
-
-    return returnDirections
+    return return_directions
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    current_state = problem.getStartState()
+    to_search = util.Queue()
+    to_search.push(current_state)
+    # Remember each state's predecessor and direction for later
+    directions = {}
+    parent = ({current_state : None})   
+    # Search the problem graph depth-first until the goal state is found.
+    visited_states = set()  # Avoid duplicate computation by tracking visited states
+    while not to_search.isEmpty():
+        if current_state not in visited_states:
+            if problem.isGoalState(current_state):
+                break
+            for successor in problem.getSuccessors(current_state):
+                if successor[0] not in visited_states:
+                    parent.update({successor[0] : current_state})
+                    directions[successor[0]] = successor[1]
+                    to_search.push(successor[0])
+            visited_states.add(current_state)
+        current_state = to_search.pop()
+
+    # Build the list of moves by traversing backwards from the goal state to the start.
+    return_directions = []
+    while parent[current_state] is not None:
+        return_directions.insert(0, directions[current_state])
+        current_state = parent[current_state]
+
+    return return_directions
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
