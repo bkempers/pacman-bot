@@ -72,59 +72,42 @@ def depthFirstSearch(problem):
     current_state = problem.getStartState()
     to_search = util.Stack()
     to_search.push(current_state)
-    # Remember each state's predecessor and direction for later
-    directions = {}
-    parent = ({current_state : None})   
+    # Remember the path to each stated
+    path_to = ({current_state: []})
     # Search the problem graph depth-first until the goal state is found.
     visited_states = set()  # Avoid duplicate computation by tracking visited states
     while not to_search.isEmpty():
+        current_state = to_search.pop()
+        if problem.isGoalState(current_state):
+                return path_to[current_state]
         if current_state not in visited_states:
-            if problem.isGoalState(current_state):
-                break
+            visited_states.add(current_state)
             for successor in problem.getSuccessors(current_state):
                 if successor[0] not in visited_states:
-                    parent.update({successor[0] : current_state})
-                    directions[successor[0]] = successor[1]
+                    path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
                     to_search.push(successor[0])
-            visited_states.add(current_state)
-        current_state = to_search.pop()
-
-    # Build the list of moves by traversing backwards from the goal state to the start.
-    return_directions = []
-    while parent[current_state] is not None:
-        return_directions.insert(0, directions[current_state])
-        current_state = parent[current_state]
-
-    return return_directions
+            
+   
 
 def breadthFirstSearch(problem):
     current_state = problem.getStartState()
     to_search = util.Queue()
     to_search.push(current_state)
-    # Remember each state's predecessor and direction for later
-    directions = {}
-    parent = ({current_state : None})   
+    # Remember the path to each stated
+    path_to = ({current_state: []})
     # Search the problem graph depth-first until the goal state is found.
     visited_states = set()  # Avoid duplicate computation by tracking visited states
     while not to_search.isEmpty():
+        current_state = to_search.pop()
+        if problem.isGoalState(current_state):
+            return path_to[current_state]
         if current_state not in visited_states:
-            if problem.isGoalState(current_state):
-                break
+            visited_states.add(current_state)
             for successor in problem.getSuccessors(current_state):
                 if successor[0] not in visited_states:
-                    parent.update({successor[0] : current_state})
-                    directions[successor[0]] = successor[1]
+                    if successor[0] not in to_search.list:
+                        path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
                     to_search.push(successor[0])
-            visited_states.add(current_state)
-        current_state = to_search.pop()
-
-    # Build the list of moves by traversing backwards from the goal state to the start.
-    return_directions = []
-    while parent[current_state] is not None:
-        return_directions.insert(0, directions[current_state])
-        current_state = parent[current_state]
-
-    return return_directions
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
