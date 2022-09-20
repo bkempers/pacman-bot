@@ -86,7 +86,6 @@ def depthFirstSearch(problem):
                 if successor[0] not in visited_states:
                     path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
                     to_search.push(successor[0])
-            
    
 
 def breadthFirstSearch(problem):
@@ -109,10 +108,24 @@ def breadthFirstSearch(problem):
                         path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
                     to_search.push(successor[0])
 
+
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    current_state = problem.getStartState()
+    to_search = util.PriorityQueue()
+    to_search.push(current_state, 0)
+    # Remember the path to each stated
+    path_to = ({current_state: []})
+    visited_states = set()
+    while not to_search.isEmpty():
+        current_state = to_search.pop()
+        if problem.isGoalState(current_state):
+            return path_to[current_state]
+        if current_state not in visited_states:
+            visited_states.add(current_state)
+            for successor in problem.getSuccessors(current_state):
+                if successor[0] not in visited_states:
+                    path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
+                    to_search.update(successor[0], successor[2])
 
 def nullHeuristic(state, problem=None):
     """
