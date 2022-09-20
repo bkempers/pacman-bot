@@ -116,6 +116,8 @@ def uniformCostSearch(problem):
     # Remember the path to each stated
     path_to = ({current_state: []})
     visited_states = set()
+    visited_states_values = {}
+    visited_states_values[current_state] = 0
     while not to_search.isEmpty():
         current_state = to_search.pop()
         if problem.isGoalState(current_state):
@@ -125,7 +127,12 @@ def uniformCostSearch(problem):
             for successor in problem.getSuccessors(current_state):
                 if successor[0] not in visited_states:
                     path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
-                    to_search.update(successor[0], successor[2])
+                    to_search.push(successor[0], visited_states_values[current_state] + successor[2])
+                    visited_states_values[successor[0]] = visited_states_values[current_state] + successor[2]
+                elif (successor[0] in to_search.heap) and (visited_states_values[successor[0]] > visited_states_values[current_state] + successor[2]):
+                    path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
+                    to_search.update(successor[0], visited_states_values[current_state] + successor[2])
+                    visited_states_values[successor[0]] = visited_states_values[current_state] + successor[2]
 
 def nullHeuristic(state, problem=None):
     """
