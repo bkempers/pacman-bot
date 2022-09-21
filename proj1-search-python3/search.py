@@ -113,6 +113,10 @@ def uniformCostSearch(problem):
     current_state = problem.getStartState()
     to_search = util.PriorityQueue()
     to_search.push(current_state, 0)
+
+    to_search_list = []
+    to_search_list.append(current_state)
+
     # Remember the path to each stated
     path_to = ({current_state: []})
     visited_states = set()
@@ -120,18 +124,21 @@ def uniformCostSearch(problem):
     visited_states_values[current_state] = 0
     while not to_search.isEmpty():
         current_state = to_search.pop()
+        to_search_list.remove(current_state)
         if problem.isGoalState(current_state):
             return path_to[current_state]
         if current_state not in visited_states:
             visited_states.add(current_state)
             for successor in problem.getSuccessors(current_state):
-                if successor[0] not in visited_states:
+                if successor[0] in to_search_list:
+                    if (visited_states_values[successor[0]] > visited_states_values[current_state] + successor[2]):
+                        path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
+                        to_search.update(successor[0], visited_states_values[current_state] + successor[2])
+                        visited_states_values[successor[0]] = visited_states_values[current_state] + successor[2]
+                elif successor[0] not in visited_states:
                     path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
                     to_search.push(successor[0], visited_states_values[current_state] + successor[2])
-                    visited_states_values[successor[0]] = visited_states_values[current_state] + successor[2]
-                elif (successor[0] in to_search.heap) and (visited_states_values[successor[0]] > visited_states_values[current_state] + successor[2]):
-                    path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
-                    to_search.update(successor[0], visited_states_values[current_state] + successor[2])
+                    to_search_list.append(successor[0])
                     visited_states_values[successor[0]] = visited_states_values[current_state] + successor[2]
 
 def nullHeuristic(state, problem=None):
