@@ -94,11 +94,13 @@ def breadthFirstSearch(problem):
     to_search.push(current_state)
     # Remember the path to each stated
     path_to = ({current_state: []})
+    # print("Start dict: " + str(path_to))
     # Search the problem graph depth-first until the goal state is found.
     visited_states = set()  # Avoid duplicate computation by tracking visited states
     while not to_search.isEmpty():
         current_state = to_search.pop()
         if problem.isGoalState(current_state):
+            print(path_to[current_state])
             return path_to[current_state]
         if current_state not in visited_states:
             visited_states.add(current_state)
