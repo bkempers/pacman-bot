@@ -287,7 +287,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.corners_reached = set()
+        self.visitedCorners = set()
 
     def getStartState(self):
         """
@@ -295,15 +295,19 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         # print("Start state: (" + str(self.startingPosition[0]) + ", " + str(self.startingPosition[1]) + ")")
-        return self.startingPosition
+        # States are a pair of a pair of a coordinates and the number of corners left to visit.
+        return (self.startingPosition, 3 if self.startingPosition in self.corners else 4)
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        if state in self.corners:
-            self.corners_reached.add(state)
-        return len(self.corners_reached) == 4
+        print(state)
+        corner = state[0] in self.corners
+        newState = state[0] not in self.visitedCorners
+        allCornersVisited = state[1] == 0
+        print(corner and newState and allCornersVisited)
+        return corner and newState and allCornersVisited
 
     def getSuccessors(self, state):
         """
@@ -320,15 +324,18 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            x,y = state
+            x,y = state[0]
             dx, dy = Actions.directionToVector(action)
-            nextx, nexty = int(x + dx), int(y + dy)
-            if not self.walls[nextx][nexty]:
+            coordinates = int(x + dx), int(y + dy)
+            if not self.walls[coordinates[0]][coordinates[1]]:
                 # print("Returning successor: (" + str(nextx) + ", " + str(nexty) + ")")
-                nextState = (nextx, nexty)
+                cornersLeft = state[1]
+                if coordinates in self.corners and coordinates not in self.visitedCorners:
+                    cornersLeft -= 1
+                    self.visitedCorners.add(coordinates)
+                nextState = (coordinates, cornersLeft)
                 successors.append((nextState, action, 1))
-        if state in self.corners:
-            self.corners_reached.add(state)
+        
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
