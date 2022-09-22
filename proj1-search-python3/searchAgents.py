@@ -33,6 +33,7 @@ description for details.
 
 Good luck and happy searching!
 """
+from cmath import inf
 from game import Directions
 from game import Agent
 from game import Actions
@@ -366,11 +367,14 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-
-    #    mazeDistance(point1, point2, gameState)
-
-    "*** YOUR CODE HERE ***"
-    return 0 # Default on trivial solution
+    closestCornerManhattan = inf
+    for corner in state[1]:
+        cornerManhattan = abs(state[0][0] - corner[0]) + abs(state[0][1] - corner[1])
+        if closestCornerManhattan > cornerManhattan:
+            closestCornerManhattan = cornerManhattan
+    if len(state[1]) == 0:
+        closestCornerManhattan = 0
+    return closestCornerManhattan
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
