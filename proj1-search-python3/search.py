@@ -130,16 +130,17 @@ def uniformCostSearch(problem):
         if current_state not in visited_states:
             visited_states.add(current_state)
             for successor in problem.getSuccessors(current_state):
+                successor_cost = visited_states_values[current_state] + successor[2]
                 if successor[0] in to_search_list:
-                    if (visited_states_values[successor[0]] > visited_states_values[current_state] + successor[2]):
+                    if visited_states_values[successor[0]] > successor_cost:
                         path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
-                        to_search.update(successor[0], visited_states_values[current_state] + successor[2])
-                        visited_states_values[successor[0]] = visited_states_values[current_state] + successor[2]
+                        to_search.update(successor[0], successor_cost)
+                        visited_states_values[successor[0]] = successor_cost
                 elif successor[0] not in visited_states:
                     path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
-                    to_search.push(successor[0], visited_states_values[current_state] + successor[2])
+                    to_search.push(successor[0], successor_cost)
                     to_search_list.append(successor[0])
-                    visited_states_values[successor[0]] = visited_states_values[current_state] + successor[2]
+                    visited_states_values[successor[0]] = successor_cost
 
 def nullHeuristic(state, problem=None):
     """
@@ -150,8 +151,37 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    current_state = problem.getStartState()
+    to_search = util.PriorityQueue()
+    to_search.push(current_state, heuristic(current_state, problem))
+
+    to_search_list = []
+    to_search_list.append(current_state)
+
+    # Remember the path to each stated
+    path_to = ({current_state: []})
+    visited_states = set()
+    visited_states_values = {}
+    visited_states_values[current_state] = heuristic(current_state, problem)
+    while not to_search.isEmpty():
+        current_state = to_search.pop()
+        to_search_list.remove(current_state)
+        if problem.isGoalState(current_state):
+            return path_to[current_state]
+        if current_state not in visited_states:
+            visited_states.add(current_state)
+            for successor in problem.getSuccessors(current_state):
+                successor_cost = visited_states_values[current_state] + successor[2] + heuristic(successor[0], problem)
+                if (successor[0] in to_search_list) and (visited_states_values[successor[0]] > successor_cost):
+                        path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
+                        to_search.update(successor[0], successor_cost)
+                        visited_states_values[successor[0]] = visited_states_values[current_state] + successor[2]
+                elif successor[0] not in visited_states:
+                    if successor[0] not in to_search_list:
+                        path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
+                    to_search.push(successor[0], successor_cost)
+                    to_search_list.append(successor[0])
+                    visited_states_values[successor[0]] = visited_states_values[current_state] + successor[2]
 
 
 # Abbreviations
