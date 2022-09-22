@@ -288,6 +288,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.gameState = startingGameState
 
     def getStartState(self):
         """
@@ -369,7 +370,7 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
     closestCornerManhattan = inf
     for corner in state[1]:
-        cornerManhattan = abs(state[0][0] - corner[0]) + abs(state[0][1] - corner[1])
+        cornerManhattan = mazeDistance(state[0], corner, problem.gameState)
         if closestCornerManhattan > cornerManhattan:
             closestCornerManhattan = cornerManhattan
     if len(state[1]) == 0:
