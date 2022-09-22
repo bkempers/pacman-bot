@@ -90,17 +90,14 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     current_state = problem.getStartState()
-    # print(current_state)
     to_search = util.Queue()
     to_search.push(current_state)
     parent = {current_state : (None, None)}
-    # print("Start dict: " + str(path_to))
     # Search the problem graph depth-first until the goal state is found.
     visited_states = set()  # Avoid duplicate computation by tracking visited states
     while not to_search.isEmpty():
         current_state = to_search.pop()
         visited_states.add(current_state)
-        # print(visited_states)
         if problem.isGoalState(current_state):
             break
         for successor in problem.getSuccessors(current_state):
