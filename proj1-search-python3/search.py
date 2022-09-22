@@ -79,7 +79,7 @@ def depthFirstSearch(problem):
     while not to_search.isEmpty():
         current_state = to_search.pop()
         if problem.isGoalState(current_state):
-                return path_to[current_state]
+            return path_to[current_state]
         if current_state not in visited_states:
             visited_states.add(current_state)
             for successor in problem.getSuccessors(current_state):
@@ -90,23 +90,30 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     current_state = problem.getStartState()
+    # print(current_state)
     to_search = util.Queue()
     to_search.push(current_state)
-    # Remember the path to each stated
-    path_to = ({current_state: []})
+    parent = {current_state : (None, None)}
+    # print("Start dict: " + str(path_to))
     # Search the problem graph depth-first until the goal state is found.
     visited_states = set()  # Avoid duplicate computation by tracking visited states
     while not to_search.isEmpty():
         current_state = to_search.pop()
+        visited_states.add(current_state)
+        # print(visited_states)
         if problem.isGoalState(current_state):
-            return path_to[current_state]
-        if current_state not in visited_states:
-            visited_states.add(current_state)
-            for successor in problem.getSuccessors(current_state):
-                if successor[0] not in visited_states:
-                    if successor[0] not in to_search.list:
-                        path_to.update({successor[0]: path_to[current_state] + [successor[1]]})
-                    to_search.push(successor[0])
+            break
+        for successor in problem.getSuccessors(current_state):
+            if successor[0] not in to_search.list and successor[0] not in visited_states:
+                parent[successor[0]] = (current_state, successor[1])
+                to_search.push(successor[0])
+    path = []
+    while parent[current_state][0]:
+        path.insert(0, parent[current_state][1])
+        current_state = parent[current_state][0]
+    print(path)
+    return path
+
 
 
 def uniformCostSearch(problem):
