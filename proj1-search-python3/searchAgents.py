@@ -287,7 +287,6 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.visitedCorners = set()
 
     def getStartState(self):
         """
@@ -296,18 +295,17 @@ class CornersProblem(search.SearchProblem):
         """
         # print("Start state: (" + str(self.startingPosition[0]) + ", " + str(self.startingPosition[1]) + ")")
         # States are a pair of a pair of a coordinates and the number of corners left to visit.
-        return (self.startingPosition, 3 if self.startingPosition in self.corners else 4)
+        startState = (self.startingPosition, self.corners)
+        if startState[0] in startState[1]:
+            cornerIndex = startState[1].index(startState[0])
+            startState[1] = startState[1][:cornerIndex] + startState[1][cornerIndex + 1:]
+        return startState
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        print(state)
-        corner = state[0] in self.corners
-        newState = state[0] not in self.visitedCorners
-        allCornersVisited = state[1] == 0
-        print(corner and newState and allCornersVisited)
-        return corner and newState and allCornersVisited
+        return len(state[1]) == 0
 
     def getSuccessors(self, state):
         """
@@ -329,11 +327,11 @@ class CornersProblem(search.SearchProblem):
             coordinates = int(x + dx), int(y + dy)
             if not self.walls[coordinates[0]][coordinates[1]]:
                 # print("Returning successor: (" + str(nextx) + ", " + str(nexty) + ")")
-                cornersLeft = state[1]
-                if coordinates in self.corners and coordinates not in self.visitedCorners:
-                    cornersLeft -= 1
-                    self.visitedCorners.add(coordinates)
-                nextState = (coordinates, cornersLeft)
+                remainingCorners = state[1]
+                if coordinates in self.corners and coordinates in remainingCorners:
+                    cornerIndex = remainingCorners.index(coordinates)
+                    remainingCorners = remainingCorners[:cornerIndex] + remainingCorners[cornerIndex+1:]
+                nextState = (coordinates, remainingCorners)
                 successors.append((nextState, action, 1))
         
         self._expanded += 1 # DO NOT CHANGE
