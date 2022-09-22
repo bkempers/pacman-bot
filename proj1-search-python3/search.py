@@ -111,7 +111,6 @@ def breadthFirstSearch(problem):
     while parent[current_state][0]:
         path.insert(0, parent[current_state][1])
         current_state = parent[current_state][0]
-    print(path)
     return path
 
 
