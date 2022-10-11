@@ -43,6 +43,7 @@ class ReflexAgent(Agent):
 
         # Choose one of the best actions
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
+        print(str(scores))
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
@@ -72,9 +73,29 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        ghostPositions = currentGameState.getGhostPositions()
+        
+        # Gets closest/furthest? food with respect to how close a ghost is
+        tempFoodDistance = 0
+        tempGhostDistance = 0
+        tempFoodGhostDistance = 0
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        shortestFood = (0, 0)
+        optimalFoodDistance = float("inf")
+        optimalScore = successorGameState.getScore()
+        for ghost in ghostPositions:
+            for food in newFood.asList():
+                # Get closest food to player
+                tempFoodDistance = manhattanDistance(food, newPos)
+                if optimalFoodDistance > tempFoodDistance:
+                    shortestFood = food
+                    optimalFoodDistance = tempFoodDistance
+            tempGhostDistance = manhattanDistance(ghost, newPos)
+            tempFoodGhostDistance = manhattanDistance(ghost, shortestFood)
+            if((optimalFoodDistance < tempGhostDistance) and (tempGhostDistance < tempFoodGhostDistance)):
+                optimalScore = optimalScore + 1
+
+        return optimalScore
 
 def scoreEvaluationFunction(currentGameState):
     """

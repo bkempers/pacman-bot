@@ -472,7 +472,7 @@ def foodHeuristic(state, problem):
 
     furthestFood = 0
     for food in foodGrid.asList():
-        tempFood = mazeDistance(position, food, problem.startingGameState)
+        tempFood = mazeDistance(position, food, problem)
         if tempFood > furthestFood:
             furthestFood = tempFood
 
