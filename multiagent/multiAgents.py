@@ -43,7 +43,6 @@ class ReflexAgent(Agent):
 
         # Choose one of the best actions
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
-        print(str(scores))
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
@@ -75,27 +74,20 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         ghostPositions = currentGameState.getGhostPositions()
         
-        # Gets closest/furthest? food with respect to how close a ghost is
-        tempFoodDistance = 0
-        tempGhostDistance = 0
-        tempFoodGhostDistance = 0
+        optimalScore = 0
+        # Want to elimate needless pacman bot actions
+        if action == "Stop":
+            optimalScore = optimalScore - 50
 
-        shortestFood = (0, 0)
-        optimalFoodDistance = float("inf")
-        optimalScore = successorGameState.getScore()
-        for ghost in ghostPositions:
-            for food in newFood.asList():
-                # Get closest food to player
-                tempFoodDistance = manhattanDistance(food, newPos)
-                if optimalFoodDistance > tempFoodDistance:
-                    shortestFood = food
-                    optimalFoodDistance = tempFoodDistance
-            tempGhostDistance = manhattanDistance(ghost, newPos)
-            tempFoodGhostDistance = manhattanDistance(ghost, shortestFood)
-            if((optimalFoodDistance < tempGhostDistance) and (tempGhostDistance < tempFoodGhostDistance)):
-                optimalScore = optimalScore + 1
+        # Gets closest food with respect to how close a ghost is
+        foodList = newFood.asList()
+        foodDistances = [manhattanDistance(foodPos, newPos) for foodPos in foodList]
+        if len(foodDistances) == 0:
+            return 0
+        shortestFood = min(foodDistances)
+        ghostDistance = manhattanDistance(ghostPositions[0], newPos)
 
-        return optimalScore
+        return successorGameState.getScore() + (ghostDistance * 3) /  (shortestFood * 20) + optimalScore
 
 def scoreEvaluationFunction(currentGameState):
     """
