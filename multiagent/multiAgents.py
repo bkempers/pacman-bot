@@ -12,6 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
+#from math import nextafter
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -147,8 +148,62 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        action = self.max_value(gameState, 0, 0, "")
+        return action[1]
+
+    def value(self, gameState, index, depth, action):
+        #if state is a terminal state (win/lose or depth reached)
+        if gameState.isWin() or gameState.isLose():
+            return (self.evaluationFunction(gameState), action)
+        if depth == self.depth:
+            return (self.evaluationFunction(gameState), action)
+
+        #if gamestate is 'pacman'
+        if index == 0:
+            return self.max_value(gameState, index, depth, action)
+        #else gamestate is 'ghost'
+        else:
+            return self.min_value(gameState, index, depth, action)
+
+    def max_value(self, gameState, index, depth, action):
+        max = float("-inf")
+        return_action = ""
+        legalMoves = gameState.getLegalActions(index)
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(index, action)
+
+            #successor index moves back to pacman index
+            if index + 1 == gameState.getNumAgents():
+                successor_value = self.value(successor, 0, depth + 1, action)[0]
+            else:
+                successor_value = self.value(successor, index + 1, depth, action)[0]
+
+            #maximize successor value over -inf
+            if successor_value > max:
+                max = successor_value
+                return_action = action
+
+        return (max, return_action)
+
+    def min_value(self, gameState, index, depth, action):
+        max = float("inf")
+        return_action = ""
+        legalMoves = gameState.getLegalActions(index)
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(index, action)
+
+          #successor index moves back to pacman index
+            if index + 1 == gameState.getNumAgents():
+                successor_value = self.value(successor, 0, depth + 1, action)[0]
+            else:
+                successor_value = self.value(successor, index + 1, depth, action)[0]
+
+            #minimize successor value over inf
+            if successor_value < max:
+                max = successor_value
+                return_action = action
+
+        return (max, return_action)
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
