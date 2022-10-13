@@ -336,6 +336,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         successor_value = 0
         for action in legalMoves:
             successor = gameState.generateSuccessor(index, action)
+            prob = (1/len(legalMoves))
             #successor index moves back to pacman index
             if index + 1 == gameState.getNumAgents():
                 successor_value += prob * self.value(successor, 0, depth + 1, action)[0]
