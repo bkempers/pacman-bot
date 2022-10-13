@@ -186,7 +186,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return (max, return_action)
 
     def min_value(self, gameState, index, depth, action):
-        max = float("inf")
+        min = float("inf")
         return_action = ""
         legalMoves = gameState.getLegalActions(index)
         for action in legalMoves:
@@ -199,11 +199,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 successor_value = self.value(successor, index + 1, depth, action)[0]
 
             #minimize successor value over inf
-            if successor_value < max:
-                max = successor_value
+            if successor_value < min:
+                min = successor_value
                 return_action = action
 
-        return (max, return_action)
+        return (min, return_action)
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -214,8 +214,74 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        action = self.max_value_pruning(gameState, 0, 0, float("-inf"), float("inf"))
+        return action[1]
+
+    def value(self, gameState, index, depth, action, alpha, beta):
+        #if state is a terminal state (win/lose or depth reached)
+        if gameState.isWin() or gameState.isLose():
+            return (self.evaluationFunction(gameState), action, alpha, beta)
+        if depth == self.depth:
+            return (self.evaluationFunction(gameState), action, alpha, beta)
+
+        #if gamestate is 'pacman'
+        if index == 0:
+            return self.max_value_pruning(gameState, index, depth, alpha, beta)
+        #else gamestate is 'ghost'
+        else:
+            return self.min_value_pruning(gameState, index, depth, alpha, beta)
+
+    def max_value_pruning(self, gameState, index, depth, alpha, beta):
+        max = float("-inf")
+        return_action = ""
+        legalMoves = gameState.getLegalActions(index)
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(index, action)
+
+          #successor index moves back to pacman index
+            if index + 1 == gameState.getNumAgents():
+                successor_value = self.value(successor, 0, depth + 1, action, alpha, beta)[0]
+            else:
+                successor_value = self.value(successor, index + 1, depth, action, alpha, beta)[0]
+            #minimize successor value over inf
+            if successor_value > max:
+                max = successor_value
+                return_action = action
+
+            #alpha-beta pruning implementation
+            if max > beta:
+                return (max, action, alpha, beta)
+            #minimize successor value over inf
+            if alpha < max:
+                alpha = max
+
+        return (max, return_action, alpha, beta)
+
+    def min_value_pruning(self, gameState, index, depth, alpha, beta):
+        min = float("inf")
+        return_action = ""
+        legalMoves = gameState.getLegalActions(index)
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(index, action)
+
+          #successor index moves back to pacman index
+            if index + 1 == gameState.getNumAgents():
+                successor_value = self.value(successor, 0, depth + 1, action, alpha, beta)[0]
+            else:
+                successor_value = self.value(successor, index + 1, depth, action, alpha, beta)[0]
+            #minimize successor value over inf
+            if successor_value < min:
+                min = successor_value
+                return_action = action
+
+            #alpha-beta pruning implementation
+            if min < alpha:
+                return (min, action, alpha, beta)
+            #minimize successor value over inf
+            if beta > min:
+                beta = min
+
+        return (min, return_action, alpha, beta)
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
