@@ -295,8 +295,54 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        action = self.max_value(gameState, 0, 0)
+        return action[1]
+
+    def value(self, gameState, index, depth, action):
+        #if state is a terminal state (win/lose or depth reached)
+        if gameState.isWin() or gameState.isLose():
+            return (self.evaluationFunction(gameState), action)
+        if depth == self.depth:
+            return (self.evaluationFunction(gameState), action)
+
+        #if gamestate is 'pacman'
+        if index == 0:
+            return self.max_value(gameState, index, depth)
+        #else gamestate is 'ghost'
+        else:
+            return self.exp_value(gameState, index, depth)
+
+    def max_value(self, gameState, index, depth):
+        max = float("-inf")
+        return_action = ""
+        legalMoves = gameState.getLegalActions(index)
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(index, action)
+            #successor index moves back to pacman index
+            if index + 1 == gameState.getNumAgents():
+                successor_value = self.value(successor, 0, depth + 1, action)[0]
+            else:
+                successor_value = self.value(successor, index + 1, depth, action)[0]
+            #maximize successor value over -inf
+            if successor_value > max:
+                max = successor_value
+                return_action = action
+        return (max, return_action)
+    
+    def exp_value(self, gameState, index, depth):
+        return_action = ""
+        prob = 0
+        legalMoves = gameState.getLegalActions(index)
+        successor_value = 0
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(index, action)
+            #successor index moves back to pacman index
+            if index + 1 == gameState.getNumAgents():
+                successor_value += prob * self.value(successor, 0, depth + 1, action)[0]
+            else:
+                successor_value += prob * self.value(successor, index + 1, depth, action)[0]
+        return (successor_value, return_action)
+
 
 def betterEvaluationFunction(currentGameState):
     """
