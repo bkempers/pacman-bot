@@ -352,8 +352,12 @@ def betterEvaluationFunction(currentGameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+     # Useful information you can extract from a GameState (pacman.py)
+    currPos = currentGameState.getPacmanPosition()
+    foodLoc = currentGameState.getFood()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+    ghostPositions = currentGameState.getGhostPositions() 
 
 # Abbreviation
 better = betterEvaluationFunction
