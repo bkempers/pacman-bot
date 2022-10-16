@@ -13,6 +13,7 @@
 
 
 #from math import nextafter
+from operator import invert
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -348,14 +349,61 @@ def betterEvaluationFunction(currentGameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION:
+    Each of the features below is multiplied by a weight in the final evaluation
+    line. These multipliers signify the importance of a specified feature.
+
+    Features:
+        - Evaluation score increases as state score increases
+        - Evaluation score increases as number of scared ghosts increases
+        - Evaluation score also increases as number of scared ghosts within reach increases
+        - Evaluation score decreases as distance to the closest food increases
+        - Evaluation score decreases as amount of food left to collect increases
+        - Evaluation score avoids seeking pellets when ghosts are already scared.
+
+    By choosing appropriate weights for each feature we can design a Pac-Man evaluation function
+    which eats like a maniac and intelligently hunts ghosts, but also has a self preservation instinct 
+    in addition to a desire to finish the game quickly.
+
     """
      # Useful information you can extract from a GameState (pacman.py)
     currPos = currentGameState.getPacmanPosition()
     foodLoc = currentGameState.getFood()
+    pelletLoc = currentGameState.getCapsules()
     ghostStates = currentGameState.getGhostStates()
     scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
     ghostPositions = currentGameState.getGhostPositions()
+    
+    if currentGameState.isWin():
+        return 1000000
+
+    # Ghost-hunting
+    possibleGhostKills = avgThreatDistance = scaredGhosts =  0
+    for i in range(len(ghostStates)):
+        ghostDistance = manhattanDistance(currPos, ghostPositions[i])
+        if scaredTimes[i] == 0:
+            avgThreatDistance = ghostDistance
+            continue
+        scaredGhosts += 1
+        if scaredTimes[i] > ghostDistance:
+            possibleGhostKills += 1
+    avgThreatDistance /= len(ghostStates)
+    
+    # Pellet-nabbing
+    if len(pelletLoc) == 0:
+        pelletAvoidance = 0
+    else:
+        closestPellet = min([manhattanDistance(pelletPos, currPos) for pelletPos in pelletLoc])
+        pelletAvoidance = closestPellet if scaredGhosts == 0 else closestPellet * scaredGhosts
+
+    # Food-gobbling
+    remainingFood = len(foodLoc.asList())
+    shortestFood = min([manhattanDistance(foodPos, currPos) for foodPos in foodLoc.asList()])
+
+    # Unstoppable evaluation function.
+    return ((120 * scaredGhosts) + (11 * currentGameState.getScore()) + (200 * possibleGhostKills) + (33 * avgThreatDistance)) / ((14 * shortestFood) + (120 * remainingFood) + (8 * pelletAvoidance))
+
+
 
 # Abbreviation
 better = betterEvaluationFunction
