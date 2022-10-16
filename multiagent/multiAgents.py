@@ -75,17 +75,15 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         ghostPositions = currentGameState.getGhostPositions()
         
-        optimalScore = 0
-        # Want to elimate needless pacman bot actions
-        if action == "Stop":
-            optimalScore = optimalScore - 50
+        # Any goal state should score well. We want Pac-Man to finish the game!
+        if successorGameState.isWin():
+            return 10000
 
+        # Want to elimate needless pacman bot actions
+        optimalScore = -50 if action == "Stop" else 0
+        
         # Gets closest food with respect to how close a ghost is
-        foodList = newFood.asList()
-        foodDistances = [manhattanDistance(foodPos, newPos) for foodPos in foodList]
-        if len(foodDistances) == 0:
-            return 0
-        shortestFood = min(foodDistances)
+        shortestFood = min([manhattanDistance(foodPos, newPos) for foodPos in newFood.asList()])
         ghostDistance = manhattanDistance(ghostPositions[0], newPos)
 
         return successorGameState.getScore() + (ghostDistance * 3) /  (shortestFood * 20) + optimalScore
@@ -357,7 +355,7 @@ def betterEvaluationFunction(currentGameState):
     foodLoc = currentGameState.getFood()
     ghostStates = currentGameState.getGhostStates()
     scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
-    ghostPositions = currentGameState.getGhostPositions() 
+    ghostPositions = currentGameState.getGhostPositions()
 
 # Abbreviation
 better = betterEvaluationFunction
