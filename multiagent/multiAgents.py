@@ -13,6 +13,7 @@
 
 
 #from math import nextafter
+from cmath import inf
 from operator import invert
 from util import manhattanDistance
 from game import Directions
@@ -85,7 +86,7 @@ class ReflexAgent(Agent):
         
         # Gets closest food with respect to how close a ghost is
         shortestFood = min([manhattanDistance(foodPos, newPos) for foodPos in newFood.asList()])
-        ghostDistance = manhattanDistance(ghostPositions[0], newPos)
+        ghostDistance = min([manhattanDistance(ghostPos, newPos) for ghostPos in ghostPositions])
 
         return successorGameState.getScore() + (ghostDistance * 3) /  (shortestFood * 20) + optimalScore
 
@@ -357,6 +358,7 @@ def betterEvaluationFunction(currentGameState):
         - Evaluation score increases as state score increases
         - Evaluation score increases as number of scared ghosts increases
         - Evaluation score also increases as number of scared ghosts within reach increases
+        - Evaluation score decreases as avg distance from threatening ghosts increases
         - Evaluation score decreases as distance to the closest food increases
         - Evaluation score decreases as amount of food left to collect increases
         - Evaluation score avoids seeking pellets when ghosts are already scared.
@@ -375,7 +377,7 @@ def betterEvaluationFunction(currentGameState):
     ghostPositions = currentGameState.getGhostPositions()
     
     if currentGameState.isWin():
-        return 1000000
+        return inf
 
     # Ghost-hunting
     possibleGhostKills = avgThreatDistance = scaredGhosts =  0
@@ -390,18 +392,14 @@ def betterEvaluationFunction(currentGameState):
     avgThreatDistance /= len(ghostStates)
     
     # Pellet-nabbing
-    if len(pelletLoc) == 0:
-        pelletAvoidance = 0
-    else:
-        closestPellet = min([manhattanDistance(pelletPos, currPos) for pelletPos in pelletLoc])
-        pelletAvoidance = closestPellet if scaredGhosts == 0 else closestPellet * scaredGhosts
+    closestPellet = 1 if len(pelletLoc) == 0 else min([manhattanDistance(pelletPos, currPos) for pelletPos in pelletLoc])
 
     # Food-gobbling
     remainingFood = len(foodLoc.asList())
     shortestFood = min([manhattanDistance(foodPos, currPos) for foodPos in foodLoc.asList()])
 
     # Unstoppable evaluation function.
-    return ((120 * scaredGhosts) + (11 * currentGameState.getScore()) + (200 * possibleGhostKills) + (33 * avgThreatDistance)) / ((14 * shortestFood) + (120 * remainingFood) + (8 * pelletAvoidance))
+    return ((120 * scaredGhosts) + (11 * currentGameState.getScore()) + (200 * possibleGhostKills) + (33 * avgThreatDistance)) / ((14 * shortestFood) + (120 * remainingFood) + (8 * closestPellet))
 
 
 
