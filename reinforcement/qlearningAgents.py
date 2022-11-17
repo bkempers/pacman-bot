@@ -50,8 +50,14 @@ class QLearningAgent(ReinforcementAgent):
           Should return 0.0 if we have never seen a state
           or the Q node value otherwise
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        qValue = 0.0
+        for transitionTuple in self.mdp.getTransitionStatesAndProbs(state, action):
+            nextState = transitionTuple[0]
+            probability = transitionTuple[1]
+            qValue += (probability * (self.mdp.getReward(state, action, nextState) + (self.discount * self.getValue(nextState))))
+        
+        return qValue
+
 
 
     def computeValueFromQValues(self, state):
@@ -61,8 +67,6 @@ class QLearningAgent(ReinforcementAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return a value of 0.0.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
     def computeActionFromQValues(self, state):
         """

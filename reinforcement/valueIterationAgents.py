@@ -26,6 +26,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
+import math
 import mdp, util
 
 from learningAgents import ValueEstimationAgent
@@ -60,13 +61,19 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.runValueIteration()
 
     def runValueIteration(self):
+        # Initialize MDP values
+        for state in self.mdp.getStates():
+            self.values[state] = 0.0
+
         # V(k+1)(s) <- max(a) sum ( T(s, a, s(prime)) * [ R(s, a, s(prime)) + (discount * value(s(prime))) ])
-        state = self.mdp.getStartState()
         for iteration in range(self.iterations):
+            oldVals = self.values.copy()
             for state in self.mdp.getStates():
-                bestAction = self.getAction(state)
-                if(bestAction is not None):
-                    self.values[state] = int(self.getQValue(state, bestAction))
+                stateVals = util.Counter()
+                for action in self.mdp.getPossibleActions(state):
+                    stateVals[action] = self.getQValue(state, action)
+                oldVals[state] = stateVals[stateVals.argMax()]
+            self.values = oldVals.copy()
 
     def getValue(self, state):
         """
@@ -82,11 +89,12 @@ class ValueIterationAgent(ValueEstimationAgent):
 
           sum ( T(s, a, s(prime)) * [ R(s, a, s(prime)) + (discount * value(s(prime))) ]
         """
-        qValue = 0
+        qValue = 0.0
         for transitionTuple in self.mdp.getTransitionStatesAndProbs(state, action):
             nextState = transitionTuple[0]
             probability = transitionTuple[1]
             qValue += (probability * (self.mdp.getReward(state, action, nextState) + (self.discount * self.getValue(nextState))))
+        
         return qValue
 
     def computeActionFromValues(self, state):
@@ -100,15 +108,13 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         if(self.mdp.isTerminal(state)):
             return None
-        
-        # (QValue, Action)
-        optimalAction = (0, 0)
-        for action in self.mdp.getPossibleActions(state):
-            currActionValue = self.getQValue(state, action)
-            if currActionValue >= optimalAction[0]:
-                optimalAction = (currActionValue, action)
+        else:
+            # (QValue, Action)
+            optimalAction = util.Counter()
+            for action in self.mdp.getPossibleActions(state):
+                optimalAction[action] = self.computeQValueFromValues(state, action)
 
-        return optimalAction[1]
+        return optimalAction.argMax()
 
 
     def getPolicy(self, state):
@@ -149,7 +155,17 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
+        # Initialize MDP values
+        for state in self.mdp.getStates():
+            self.values[state] = 0.0
+
+        # V(k+1)(s) <- max(a) sum ( T(s, a, s(prime)) * [ R(s, a, s(prime)) + (discount * value(s(prime))) ])
+        for iteration in range(self.iterations):
+            for state in self.mdp.getStates():
+                stateVals = util.Counter()
+                for action in self.mdp.getPossibleActions(state):
+                    stateVals[action] = self.computeActionFromValues(state, action)
+            self.values[state] = stateVals.argMax()
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
