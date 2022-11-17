@@ -60,9 +60,13 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.runValueIteration()
 
     def runValueIteration(self):
-        # Write value iteration code here
-        "*** YOUR CODE HERE ***"
-
+        # V(k+1)(s) <- max(a) sum ( T(s, a, s(prime)) * [ R(s, a, s(prime)) + (discount * value(s(prime))) ])
+        state = self.mdp.getStartState()
+        for iteration in range(self.iterations):
+            for state in self.mdp.getStates():
+                bestAction = self.getAction(state)
+                if(bestAction is not None):
+                    self.values[state] = int(self.getQValue(state, bestAction))
 
     def getValue(self, state):
         """
@@ -75,9 +79,15 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
           Compute the Q-value of action in state from the
           value function stored in self.values.
+
+          sum ( T(s, a, s(prime)) * [ R(s, a, s(prime)) + (discount * value(s(prime))) ]
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        qValue = 0
+        for transitionTuple in self.mdp.getTransitionStatesAndProbs(state, action):
+            nextState = transitionTuple[0]
+            probability = transitionTuple[1]
+            qValue += (probability * (self.mdp.getReward(state, action, nextState) + (self.discount * self.getValue(nextState))))
+        return qValue
 
     def computeActionFromValues(self, state):
         """
@@ -88,8 +98,18 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if(self.mdp.isTerminal(state)):
+            return None
+        
+        # (QValue, Action)
+        optimalAction = (0, 0)
+        for action in self.mdp.getPossibleActions(state):
+            currActionValue = self.getQValue(state, action)
+            if currActionValue >= optimalAction[0]:
+                optimalAction = (currActionValue, action)
+
+        return optimalAction[1]
+
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
