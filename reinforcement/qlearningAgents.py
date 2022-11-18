@@ -80,11 +80,22 @@ class QLearningAgent(ReinforcementAgent):
         if(len(legalActions) == 0):
           return None
 
-        optimalAction = []
+        actionValPairs = []
+        optimalQVal = -math.inf
         for action in legalActions:
-          optimalAction.append(self.getQValue(state, action))
+          qVal = self.getQValue(state, action)
+          if qVal > optimalQVal:
+            optimalQVal = qVal
+          actionValPairs.append([qVal, action])
 
-        return random.choice(optimalAction)
+        ret = []
+
+        for pair in actionValPairs:
+          if pair[0] == optimalQVal:
+            ret.append(pair[1])
+
+        return random.choice(ret)
+        
 
     def getAction(self, state):
         """
