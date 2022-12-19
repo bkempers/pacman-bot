@@ -23,3 +23,11 @@ https://inst.eecs.berkeley.edu/~cs188/fa18/projects.html - UC Berkeley's AI pacm
 Ben Kempers' Github: https://github.com/bkempers
 
 Nate Hall' GitHub: https://github.com/natehallpc
+
+# Pacman Algorithm Examples
+
+![Screenshot](pacman-search.png)
+
+![Screenshot](pacman-multiagent.png)
+
+![Screenshot](pacman-reinforcement.png)
